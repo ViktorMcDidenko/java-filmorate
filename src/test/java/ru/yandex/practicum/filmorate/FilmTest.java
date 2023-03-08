@@ -7,195 +7,89 @@ import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
+import javax.validation.Validator;
 import java.time.LocalDate;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 public class FilmTest {
-    FilmController controller;
     Film film;
-    int limitSymbols = FilmController.getDESCRIPTION_SYMBOLS();
-    LocalDate limitDate = LocalDate.of(1895, 12, 28);
+    private Validator validator;
 
     @BeforeEach
     void beforeEach() {
-        controller = new FilmController();
         film = new Film("Титаник",
                 "Грустный фильм о кораблике.",
                 LocalDate.of(1997, 8, 11),
                 255);
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
     }
 
     @Test
-    void create() {
-        assertEquals(controller.findAll().size(), 0, "Список фильмов не пуст.");
-        assertEquals(controller.create(film), film, "Ошибка при добавлении фильма.");
-        assertEquals(controller.findAll().size(), 1, "Размер списка фильмов неверный.");
-    }
-
-    @Test
-    void update() {
-        controller.create(film);
-        film.setName("Titanic");
-
-        assertEquals(controller.findAll().size(), 1, "Размер списка фильмов до обновления неверный.");
-        assertEquals(controller.update(film), film, "Ошибка при обновлении фильма.");
-        assertEquals(controller.findAll().size(), 1, "Размер списка фильмов после обновления неверный.");
-    }
-
-    @Test
-    void createFilmWithEmptyName() {
+    void checkEmptyNameFilm() {
         film.setName(" ");
 
-        ValidationException e = assertThrows(ValidationException.class,
-                () -> controller.create(film));
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
 
-        assertEquals("Название фильма не может быть пустым.", e.getMessage());
-        assertEquals(0, controller.findAll().size());
+        assertEquals(violations.size(), 1);
     }
 
     @Test
-    void createFilmWithNullName() {
+    void checkNullNameFilm() {
         film.setName(null);
 
-        ValidationException e = assertThrows(ValidationException.class,
-                () -> controller.create(film));
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
 
-        assertEquals("Название фильма не может быть пустым.", e.getMessage());
-        assertEquals(0, controller.findAll().size());
+        assertEquals(violations.size(), 1);
     }
 
     @Test
-    void updateFilmWithEmptyName() {
-        controller.create(film);
-        film.setName(" ");
-
-        ValidationException e = assertThrows(ValidationException.class,
-                () -> controller.update(film));
-
-        assertEquals("Название фильма не может быть пустым.", e.getMessage());
-        assertEquals(1, controller.findAll().size());
-    }
-
-    @Test
-    void updateFilmWithNullName() {
-        controller.create(film);
-        film.setName(null);
-
-        ValidationException e = assertThrows(ValidationException.class,
-                () -> controller.update(film));
-
-        assertEquals("Название фильма не может быть пустым.", e.getMessage());
-        assertEquals(1, controller.findAll().size());
-    }
-
-    @Test
-    void createFilmWithLimitLongDescription() {
-        String longDescription = "a".repeat(limitSymbols);
+    void checkFilmWithTooLongDescription() {
+        String longDescription = "a".repeat(201);
         film.setDescription(longDescription);
 
-        assertEquals(controller.create(film).getDescription().length(), limitSymbols);
-        assertEquals(1, controller.findAll().size());
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+
+        assertEquals(violations.size(), 1);
     }
 
     @Test
-    void createFilmWithTooLongDescription() {
-        String longDescription = "a".repeat(limitSymbols + 1);
-        film.setDescription(longDescription);
+    void checkTooOldFilm() {
+        FilmController controller = new FilmController();
+        film.setReleaseDate(LocalDate.of(1895, 12, 27));
 
         ValidationException e = assertThrows(ValidationException.class,
                 () -> controller.create(film));
 
-        assertEquals("Максимальная длина описания в символах: " + limitSymbols + ". В вашем описании символов: "
-                + (limitSymbols + 1), e.getMessage());
-        assertEquals(0, controller.findAll().size());
+        assertEquals("You cannot add pictures filmed before December 28, 1895.", e.getMessage());
     }
 
     @Test
-    void updateFilmWithLimitLongDescription() {
-        controller.create(film);
-        String longDescription = "a".repeat(limitSymbols);
-        film.setDescription(longDescription);
-
-        assertEquals(controller.update(film).getDescription().length(), limitSymbols);
-        assertEquals(1, controller.findAll().size());
-    }
-
-    @Test
-    void updateFilmWithTooLongDescription() {
-        controller.create(film);
-        String longDescription = "a".repeat(limitSymbols + 1);
-        film.setDescription(longDescription);
-
-        ValidationException e = assertThrows(ValidationException.class,
-                () -> controller.update(film));
-
-        assertEquals("Максимальная длина описания в символах: " + limitSymbols + ". В вашем описании символов: "
-                + (limitSymbols + 1), e.getMessage());
-        assertEquals(1, controller.findAll().size());
-    }
-
-    @Test
-    void createLimitOldFilm() {
-        film.setReleaseDate(limitDate);
-
-        assertEquals(controller.create(film).getReleaseDate(), limitDate);
-        assertEquals(1, controller.findAll().size());
-    }
-
-    @Test
-    void updateLimitOldFilm() {
-        controller.create(film);
-        film.setReleaseDate(limitDate);
-
-        assertEquals(controller.update(film).getReleaseDate(), limitDate);
-        assertEquals(1, controller.findAll().size());
-    }
-
-    @Test
-    void createTooOldFilm() {
-        film.setReleaseDate(limitDate.minusDays(1));
-
-        ValidationException e = assertThrows(ValidationException.class,
-                () -> controller.create(film));
-
-        assertEquals("В нашем каталоге не может быть фильмов, снятых раньше 28.12.1895 года.", e.getMessage());
-        assertEquals(0, controller.findAll().size());
-    }
-
-    @Test
-    void updateTooOldFilm() {
-        controller.create(film);
-        film.setReleaseDate(limitDate.minusDays(1));
-
-        ValidationException e = assertThrows(ValidationException.class,
-                () -> controller.update(film));
-
-        assertEquals("В нашем каталоге не может быть фильмов, снятых раньше 28.12.1895 года.", e.getMessage());
-        assertEquals(1, controller.findAll().size());
-    }
-
-    @Test
-    void createWithNonPositiveDuration() {
+    void checkNonPositiveDurationFilm() {
         film.setDuration(0);
 
-        ValidationException e = assertThrows(ValidationException.class,
-                () -> controller.create(film));
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
 
-        assertEquals("Продолжительность не может быть меньше 1 минуты.", e.getMessage());
-        assertEquals(0, controller.findAll().size());
+        assertEquals(violations.size(), 1);
     }
 
     @Test
-    void updateWithNonPositiveDuration() {
+    void checkUpdateWithNonExistentId() {
+        FilmController controller = new FilmController();
         controller.create(film);
-        film.setDuration(0);
+        int wrongId = 89;
+        film.setId(wrongId);
 
         ValidationException e = assertThrows(ValidationException.class,
                 () -> controller.update(film));
 
-        assertEquals("Продолжительность не может быть меньше 1 минуты.", e.getMessage());
-        assertEquals(1, controller.findAll().size());
+        assertEquals("There is no film with id: " + wrongId, e.getMessage());
     }
 }

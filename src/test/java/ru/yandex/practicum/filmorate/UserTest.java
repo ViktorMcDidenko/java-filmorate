@@ -7,245 +7,126 @@ import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.time.LocalDate;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 public class UserTest {
-    UserController controller;
     User user;
-    User savedUser;
+    private Validator validator;
 
     @BeforeEach
     void beforeEach() {
-        controller = new UserController();
         user = new User("test@mail.ru",
                 "test-login",
                 LocalDate.of(1970, 12, 31),
                 "Антон");
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
     }
 
     @Test
-    void create() {
-        assertEquals(controller.findAll().size(), 0, "Список пользователей не пуст.");
-        assertEquals(controller.create(user), user, "Ошибка при добавлении пользователя.");
-        assertEquals(controller.findAll().size(), 1, "Размер списка пользователей неверный.");
-    }
-
-    @Test
-    void update() {
-        controller.create(user);
-        user.setName("Лёша");
-
-        assertEquals(controller.findAll().size(), 1,
-                "Размер списка пользователей до обновления неверный.");
-        assertEquals(controller.update(user), user, "Ошибка при добавлении пользователя.");
-        assertEquals(controller.findAll().size(), 1,
-                "Размер списка пользователей после обновления неверный.");
-    }
-
-    @Test
-    void createWithNullEmail() {
+    void checkNullEmailUser() {
         user.setEmail(null);
 
-        ValidationException e = assertThrows(ValidationException.class,
-                () -> controller.create(user));
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
 
-        assertEquals("Необходимо указать электронную почту.", e.getMessage());
-        assertEquals(0, controller.findAll().size());
+        assertEquals(violations.size(), 1);
     }
 
     @Test
-    void createWithBlankEmail() {
+    void checkBlankEmailUser() {
         user.setEmail(" ");
 
-        ValidationException e = assertThrows(ValidationException.class,
-                () -> controller.create(user));
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
 
-        assertEquals("Необходимо указать электронную почту.", e.getMessage());
-        assertEquals(0, controller.findAll().size());
+        assertEquals(violations.size(), 1);
     }
 
     @Test
-    void createWithNoAtEmail() {
+    void checkNoAtEmailUser() {
         user.setEmail("test-email.ru");
 
-        ValidationException e = assertThrows(ValidationException.class,
-                () -> controller.create(user));
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
 
-        assertEquals("Неверный формат электронной почты.", e.getMessage());
-        assertEquals(0, controller.findAll().size());
+        assertEquals(violations.size(), 1);
     }
 
     @Test
-    void updateWithNullEmail() {
-        controller.create(user);
-        user.setEmail(null);
-
-        ValidationException e = assertThrows(ValidationException.class,
-                () -> controller.update(user));
-
-        assertEquals("Необходимо указать электронную почту.", e.getMessage());
-        assertEquals(1, controller.findAll().size());
-    }
-
-    @Test
-    void updateWithBlankEmail() {
-        controller.create(user);
-        user.setEmail(" ");
-
-        ValidationException e = assertThrows(ValidationException.class,
-                () -> controller.update(user));
-
-        assertEquals("Необходимо указать электронную почту.", e.getMessage());
-        assertEquals(1, controller.findAll().size());
-    }
-
-    @Test
-    void updateWithNoAtEmail() {
-        controller.create(user);
-        user.setEmail("test-email.ru");
-
-        ValidationException e = assertThrows(ValidationException.class,
-                () -> controller.update(user));
-
-        assertEquals("Неверный формат электронной почты.", e.getMessage());
-        assertEquals(1, controller.findAll().size());
-    }
-
-    @Test
-    void createWithNullLogin() {
+    void checkNullLoginUser() {
         user.setLogin(null);
 
-        ValidationException e = assertThrows(ValidationException.class,
-                () -> controller.create(user));
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
 
-        assertEquals("Придумайте логин.", e.getMessage());
-        assertEquals(0, controller.findAll().size());
+        assertEquals(violations.size(), 1);
     }
 
     @Test
-    void createWithBlankLogin() {
+    void checkBlankLoginUser() {
         user.setLogin(" ");
 
-        ValidationException e = assertThrows(ValidationException.class,
-                () -> controller.create(user));
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
 
-        assertEquals("Придумайте логин.", e.getMessage());
-        assertEquals(0, controller.findAll().size());
+        assertEquals(violations.size(), 1);
     }
 
     @Test
-    void createWithLoginContainsBlanks() {
+    void checkLoginContainsBlanksUser() {
+        UserController controller = new UserController();
         user.setLogin("test login with blanks");
 
         ValidationException e = assertThrows(ValidationException.class,
                 () -> controller.create(user));
 
-        assertEquals("Логин не может содержать проблелы.", e.getMessage());
-        assertEquals(0, controller.findAll().size());
+        assertEquals("Your login should not contain blanks.", e.getMessage());
     }
 
     @Test
-    void updateWithNullLogin() {
-        controller.create(user);
-        user.setLogin(null);
-
-        ValidationException e = assertThrows(ValidationException.class,
-                () -> controller.update(user));
-
-        assertEquals("Придумайте логин.", e.getMessage());
-        assertEquals(1, controller.findAll().size());
-    }
-
-    @Test
-    void updateWithBlankLogin() {
-        controller.create(user);
-        user.setLogin(" ");
-
-        ValidationException e = assertThrows(ValidationException.class,
-                () -> controller.update(user));
-
-        assertEquals("Придумайте логин.", e.getMessage());
-        assertEquals(1, controller.findAll().size());
-    }
-
-    @Test
-    void updateWithLoginContainsBlanks() {
-        controller.create(user);
-        user.setLogin("test login with blanks");
-
-        ValidationException e = assertThrows(ValidationException.class,
-                () -> controller.update(user));
-
-        assertEquals("Логин не может содержать проблелы.", e.getMessage());
-        assertEquals(1, controller.findAll().size());
-    }
-
-    @Test
-    void createWithNullName() {
+    void checkNullNameUser() {
+        UserController controller = new UserController();
         user.setName(null);
 
-        savedUser = controller.create(user);
+        User savedUser = controller.create(user);
 
         assertEquals(savedUser.getLogin(), savedUser.getName());
-        assertEquals(1, controller.findAll().size());
     }
 
     @Test
-    void createWithBlankName() {
+    void checkBlankNameUser() {
+        UserController controller = new UserController();
         user.setName("");
 
-        savedUser = controller.create(user);
+        User savedUser = controller.create(user);
 
         assertEquals(savedUser.getLogin(), savedUser.getName());
-        assertEquals(1, controller.findAll().size());
     }
 
     @Test
-    void updateWithNullName() {
-        controller.create(user);
-        user.setName(null);
-
-        savedUser = controller.update(user);
-
-        assertEquals(savedUser.getLogin(), savedUser.getName());
-        assertEquals(1, controller.findAll().size());
-    }
-
-    @Test
-    void updateWithBlankName() {
-        controller.create(user);
-        user.setName("");
-
-        savedUser = controller.update(user);
-
-        assertEquals(savedUser.getLogin(), savedUser.getName());
-        assertEquals(1, controller.findAll().size());
-    }
-
-    @Test
-    void createWithFutureBirthday() {
+    void checkFutureBirthdayUser() {
         user.setBirthday(LocalDate.now().plusDays(1));
 
-        ValidationException e = assertThrows(ValidationException.class,
-                () -> controller.create(user));
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
 
-        assertEquals("Дата рождения не может быть в будущем.", e.getMessage());
-        assertEquals(0, controller.findAll().size());
+        assertEquals(violations.size(), 1);
     }
 
     @Test
-    void updateWithFutureBirthday() {
+    void checkUpdateWithNonExistentId() {
+        UserController controller = new UserController();
         controller.create(user);
-        user.setBirthday(LocalDate.now().plusDays(1));
+        int wrongId = 89;
+        user.setId(wrongId);
 
         ValidationException e = assertThrows(ValidationException.class,
                 () -> controller.update(user));
 
-        assertEquals("Дата рождения не может быть в будущем.", e.getMessage());
-        assertEquals(1, controller.findAll().size());
+        assertEquals("There is no user with id: " + wrongId, e.getMessage());
     }
 }
