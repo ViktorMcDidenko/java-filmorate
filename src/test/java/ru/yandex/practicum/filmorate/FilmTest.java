@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.FilmController;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -89,7 +90,7 @@ public class FilmTest {
         int wrongId = 89;
         film.setId(wrongId);
 
-        ValidationException e = assertThrows(ValidationException.class,
+        NotFoundException e = assertThrows(NotFoundException.class,
                 () -> controller.update(film));
 
         assertEquals("There is no film with id: " + wrongId, e.getMessage());
