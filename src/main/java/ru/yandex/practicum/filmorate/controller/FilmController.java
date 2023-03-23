@@ -1,54 +1,60 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.services.FilmService;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 @Validated
+@RequiredArgsConstructor
 public class FilmController {
-    FilmService service = new FilmService();
-    private int filmId = 1;
+    private final FilmService service;
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
-        if(service.validateDate(film)) {
-            log.warn("Release date is not valid.");
-            throw new ValidationException("You cannot add pictures filmed before December 28, 1895.");
-        }
-        film.setId(filmId++);
-        service.addFilm(film);
-        log.debug("Film with the title {} was added successfully.", film.getName());
-        return film;
+        return service.addFilm(film);
     }
 
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
-        if(!service.validateUpdate(film)) {
-            log.warn("The film was not found. Update failed.");
-            throw new ValidationException("There is no film with id: " + film.getId());
-        }
-        if(service.validateDate(film)) {
-            log.warn("Release date is not valid.");
-            throw new ValidationException("You cannot add pictures filmed before December 28, 1895.");
-        }
-        service.addFilm(film);
-        log.debug("Film with the title {} was updated successfully.", film.getName());
-        return film;
+        return service.updateFilm(film);
     }
 
     @GetMapping
     public List<Film> findAll() {
-        log.debug("Current number of films: {}", service.getFilms().size());
-        return new ArrayList<>(service.getFilms().values());
+        return service.findAll();
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable int id) {
+        service.deleteFilm(id);
+    }
+
+    @GetMapping("/{id}")
+    public Film findById(@PathVariable int id) {
+        return service.getById(id);
+    }
+
+    @PutMapping("/{id}/like/{userId}")
+    public void addLike(@PathVariable int id, @PathVariable int userId) {
+        service.addLike(id, userId);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public void unlike(@PathVariable int id, @PathVariable int userId) {
+        service.removeLike(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> findPopular(@RequestParam(defaultValue = "10") int count) {
+        return service.getMostLikedFilms(count);
     }
 }

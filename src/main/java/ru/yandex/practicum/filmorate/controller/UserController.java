@@ -1,54 +1,65 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.services.UserService;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
 @Validated
+@RequiredArgsConstructor
 public class UserController {
-    UserService service = new UserService();
-    private int userId = 1;
+    private final UserService service;
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
-        if(service.validateLogin(user)) {
-            log.warn("Login validation failed.");
-            throw new ValidationException("Your login should not contain blanks.");
-        }
-        user.setId(userId++);
-        service.addUser(user);
-        log.debug("User with login {} was added successfully.", user.getLogin());
-        return user;
+        return service.addUser(user);
     }
 
     @PutMapping
     public User update(@Valid @RequestBody User user) {
-        if(!service.validateUpdate(user)) {
-            log.warn("The user was not found. Update failed.");
-            throw new ValidationException("There is no user with id: " + user.getId());
-        }
-        if(service.validateLogin(user)) {
-            log.warn("Login validation failed.");
-            throw new ValidationException("Your login should not contain blanks.");
-        }
-        service.addUser(user);
-        log.debug("User with login {} was updated successfully.", user.getLogin());
-        return user;
+        return service.updateUser(user);
     }
 
     @GetMapping
     public List<User> findAll() {
-        log.debug("Current number of users: {}", service.getUsers().size());
-        return new ArrayList<>(service.getUsers().values());
+        return service.findAll();
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable int id) {
+        service.deleteUser(id);
+    }
+
+    @GetMapping("/{id}")
+    public User findById(@PathVariable int id) {
+        return service.getById(id);
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable int id, @PathVariable int friendId) {
+        service.addNewFriend(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void unfriend(@PathVariable int id, @PathVariable int friendId) {
+        service.deleteFriend(id, friendId);
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> showFriends(@PathVariable int id) {
+        return service.getFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> showCommonFriends(@PathVariable int id, @PathVariable int otherId) {
+        return service.getCommonFriends(id, otherId);
     }
 }
