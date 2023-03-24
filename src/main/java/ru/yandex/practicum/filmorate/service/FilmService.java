@@ -27,8 +27,7 @@ public class FilmService {
 
     public List<Film> getMostLikedFilms(int count) {
         log.debug("Getting {} most liked films.", count);
-        return storage.findAllFilms()
-                .stream()
+        return storage.findAllFilms().stream()
                 .sorted((f1, f2) -> (f2.getLikes().size() - f1.getLikes().size()))
                 .limit(count)
                 .collect(Collectors.toList());

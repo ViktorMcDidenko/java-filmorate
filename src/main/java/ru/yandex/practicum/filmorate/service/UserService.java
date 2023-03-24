@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -16,30 +17,28 @@ public class UserService {
     private final UserStorage storage;
 
     public void addNewFriend(int id, int friendId) {
-        User user1 = storage.getById(id);
-        User user2 = storage.getById(friendId);
-        if(user1.equals(user2)) {
+        if(id == friendId) {
             throw new ValidationException("You can't add yourself to friends.");
         }
+        User user1 = storage.getById(id);
+        User user2 = storage.getById(friendId);
         user1.addFriend(friendId);
         user2.addFriend(id);
-        log.debug("User {} and user {} are now friends.", user1.getName(), user2.getName());
+        log.debug("User with id {} and user with id {} are friends now.", id, friendId);
     }
 
-    public void deleteFriend(int id1, int id2) {
-        storage.getById(id1).unfriend(id2);
-        storage.getById(id2).unfriend(id1);
-        log.debug("User with id {} and user with id {} are not friends anymore.", id1, id2);
+    public void deleteFriend(int id, int friendId) {
+        storage.getById(id).unfriend(friendId);
+        storage.getById(friendId).unfriend(id);
+        log.debug("User with id {} and user with id {} are not friends anymore.", id, friendId);
     }
 
     public List<User> getFriends(int id) {
         Set<Integer> friends = storage.getById(id).getFriendsId();
-        List<User> users = new ArrayList<>();
-        for(int friend : friends) {
-            users.add(storage.getById(friend));
-        }
         log.debug("User with id {} has {} friends.", id, friends.size());
-        return users;
+        return friends.stream()
+                .map(storage::getById)
+                .collect(Collectors.toList());
     }
 
     public List<User> getCommonFriends(int id, int otherId) {
