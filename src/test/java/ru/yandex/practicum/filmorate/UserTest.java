@@ -4,8 +4,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.UserController;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -79,7 +82,7 @@ public class UserTest {
 
     @Test
     void checkLoginContainsBlanksUser() {
-        UserController controller = new UserController();
+        UserController controller = new UserController(new UserService(new InMemoryUserStorage()));
         user.setLogin("test login with blanks");
 
         ValidationException e = assertThrows(ValidationException.class,
@@ -90,7 +93,7 @@ public class UserTest {
 
     @Test
     void checkNullNameUser() {
-        UserController controller = new UserController();
+        UserController controller = new UserController(new UserService(new InMemoryUserStorage()));
         user.setName(null);
 
         User savedUser = controller.create(user);
@@ -100,7 +103,7 @@ public class UserTest {
 
     @Test
     void checkBlankNameUser() {
-        UserController controller = new UserController();
+        UserController controller = new UserController(new UserService(new InMemoryUserStorage()));
         user.setName("");
 
         User savedUser = controller.create(user);
@@ -119,12 +122,12 @@ public class UserTest {
 
     @Test
     void checkUpdateWithNonExistentId() {
-        UserController controller = new UserController();
+        UserController controller = new UserController(new UserService(new InMemoryUserStorage()));
         controller.create(user);
         int wrongId = 89;
         user.setId(wrongId);
 
-        ValidationException e = assertThrows(ValidationException.class,
+        NotFoundException e = assertThrows(NotFoundException.class,
                 () -> controller.update(user));
 
         assertEquals("There is no user with id: " + wrongId, e.getMessage());

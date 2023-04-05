@@ -4,8 +4,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.FilmController;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -62,7 +65,7 @@ public class FilmTest {
 
     @Test
     void checkTooOldFilm() {
-        FilmController controller = new FilmController();
+        FilmController controller = new FilmController(new FilmService(new InMemoryFilmStorage()));
         film.setReleaseDate(LocalDate.of(1895, 12, 27));
 
         ValidationException e = assertThrows(ValidationException.class,
@@ -82,12 +85,12 @@ public class FilmTest {
 
     @Test
     void checkUpdateWithNonExistentId() {
-        FilmController controller = new FilmController();
+        FilmController controller = new FilmController(new FilmService(new InMemoryFilmStorage()));
         controller.create(film);
         int wrongId = 89;
         film.setId(wrongId);
 
-        ValidationException e = assertThrows(ValidationException.class,
+        NotFoundException e = assertThrows(NotFoundException.class,
                 () -> controller.update(film));
 
         assertEquals("There is no film with id: " + wrongId, e.getMessage());
