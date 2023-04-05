@@ -34,7 +34,7 @@ public class UserService {
     }
 
     public List<User> getFriends(int id) {
-        Set<Integer> friends = storage.getById(id).getFriendsId();
+        Set<Integer> friends = storage.getById(id).getFriends();
         log.debug("User with id {} has {} friends.", id, friends.size());
         return friends.stream()
                 .map(storage::getById)
@@ -42,8 +42,8 @@ public class UserService {
     }
 
     public List<User> getCommonFriends(int id, int otherId) {
-        Set<Integer> friends1 = storage.getById(id).getFriendsId();
-        Set<Integer> friends2 = storage.getById(otherId).getFriendsId();
+        Set<Integer> friends1 = storage.getById(id).getFriends();
+        Set<Integer> friends2 = storage.getById(otherId).getFriends();
         List<User> users = new ArrayList<>();
         for(int friend : friends1) {
             if(friends2.contains(friend)) {

@@ -37,7 +37,7 @@ public class FilmTest {
 
     @Test
     void checkEmptyNameFilm() {
-        film.setName(" ");
+        film.setTitle(" ");
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
 
@@ -46,7 +46,7 @@ public class FilmTest {
 
     @Test
     void checkNullNameFilm() {
-        film.setName(null);
+        film.setTitle(null);
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
 
@@ -88,7 +88,7 @@ public class FilmTest {
         FilmController controller = new FilmController(new FilmService(new InMemoryFilmStorage()));
         controller.create(film);
         int wrongId = 89;
-        film.setId(wrongId);
+        film.setFilmId(wrongId);
 
         NotFoundException e = assertThrows(NotFoundException.class,
                 () -> controller.update(film));

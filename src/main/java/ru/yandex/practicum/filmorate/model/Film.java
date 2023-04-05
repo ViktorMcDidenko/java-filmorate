@@ -12,9 +12,9 @@ import java.util.Set;
 
 @Data
 public class Film {
-    private int id;
+    private int filmId;
     @NotBlank
-    private String name;
+    private String title;
     @Size(max = 200)
     private String description;
     private LocalDate releaseDate;
@@ -22,8 +22,8 @@ public class Film {
     private long duration;
     Set<Integer> likes = new HashSet<>();
 
-    public Film(String name, String description, LocalDate releaseDate, int duration) {
-        this.name = name;
+    public Film(String title, String description, LocalDate releaseDate, int duration) {
+        this.title = title;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
@@ -36,7 +36,7 @@ public class Film {
     public void unlike(int id) {
         if(!likes.contains(id)) {
             throw new NotFoundException(String.format("User with id %d hasn't liked the film %s yet.",
-                    id, getName()));
+                    id, getTitle()));
         }
         likes.remove(id);
     }

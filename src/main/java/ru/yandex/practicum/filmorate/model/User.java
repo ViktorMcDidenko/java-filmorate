@@ -13,7 +13,7 @@ import java.util.Set;
 
 @Data
 public class User {
-    private int id;
+    private int userId;
     @NotNull
     @Email
     private String email;
@@ -22,7 +22,7 @@ public class User {
     @Past
     private LocalDate birthday;
     private String name;
-    private Set<Integer> friendsId = new HashSet<>();
+    private Set<Integer> friends = new HashSet<>();
 
     public User(String email, String login, LocalDate birthday, String name) {
         this.email = email;
@@ -32,14 +32,14 @@ public class User {
     }
 
     public void addFriend(int id) {
-        friendsId.add(id);
+        friends.add(id);
     }
 
     public void unfriend(int id) {
-        if(!friendsId.contains(id)) {
+        if(!friends.contains(id)) {
             throw new NotFoundException(String.format("User %s is not a friend of the user with id %d.",
                     getName(), id));
         }
-        friendsId.remove(id);
+        friends.remove(id);
     }
 }

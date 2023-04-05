@@ -125,7 +125,7 @@ public class UserTest {
         UserController controller = new UserController(new UserService(new InMemoryUserStorage()));
         controller.create(user);
         int wrongId = 89;
-        user.setId(wrongId);
+        user.setUserId(wrongId);
 
         NotFoundException e = assertThrows(NotFoundException.class,
                 () -> controller.update(user));

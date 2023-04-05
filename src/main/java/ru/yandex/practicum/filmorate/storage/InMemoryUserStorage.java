@@ -23,26 +23,26 @@ public class InMemoryUserStorage implements UserStorage {
             log.warn("Login validation failed.");
             throw new ValidationException("Your login should not contain blanks.");
         }
-        user.setId(userId++);
+        user.setUserId(userId++);
         if(user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        users.put(user.getId(), user);
+        users.put(user.getUserId(), user);
         log.debug("User with login {} was added successfully.", user.getLogin());
         return user;
     }
 
     @Override
     public User updateUser(User user) {
-        if(!users.containsKey(user.getId())) {
+        if(!users.containsKey(user.getUserId())) {
             log.warn("The user was not found. Update failed.");
-            throw new NotFoundException("There is no user with id: " + user.getId());
+            throw new NotFoundException("There is no user with id: " + user.getUserId());
         }
         if(user.getLogin().contains(" ")) {
             log.warn("Login validation failed.");
             throw new ValidationException("Your login should not contain blanks.");
         }
-        users.put(user.getId(), user);
+        users.put(user.getUserId(), user);
         log.debug("User with login {} was updated successfully.", user.getLogin());
         return user;
     }
