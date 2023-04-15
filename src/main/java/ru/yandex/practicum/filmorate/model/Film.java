@@ -29,7 +29,7 @@ public class Film {
     }
 
     public void unlike(int id) {
-        if(!likes.contains(id)) {
+        if (!likes.contains(id)) {
             throw new NotFoundException(String.format("User with id %d hasn't liked the film %s yet.",
                     id, getName()));
         }

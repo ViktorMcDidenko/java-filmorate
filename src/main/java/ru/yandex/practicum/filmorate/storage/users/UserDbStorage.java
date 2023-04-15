@@ -25,7 +25,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User addUser(User user) {
-        if(user.getLogin().contains(" ")) {
+        if (user.getLogin().contains(" ")) {
             log.warn("Login validation failed.");
             throw new ValidationException("Your login should not contain blanks.");
         }
@@ -48,11 +48,11 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User updateUser(User user) {
-        if(getById(user.getId()) == null) {
+        if (getById(user.getId()) == null) {
             log.warn("The user was not found. Update failed.");
             throw new NotFoundException("There is no user with id: " + user.getId());
         }
-        if(user.getLogin().contains(" ")) {
+        if (user.getLogin().contains(" ")) {
             log.warn("Login validation failed.");
             throw new ValidationException("Your login should not contain blanks.");
         }
@@ -70,7 +70,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void deleteUser(int id) {
-        if(getById(id) == null) {
+        if (getById(id) == null) {
             log.warn("The user was not found. Deletion failed.");
             throw new NotFoundException("There is no user with id: " + id);
         }
@@ -96,10 +96,10 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void addNewFriend(int id, int friendId) {
-        if(id == friendId) {
+        if (id == friendId) {
             throw new ValidationException("You can't add yourself to friends.");
         }
-        if((getById(id) == null) || (getById(friendId) == null)) {
+        if ((getById(id) == null) || (getById(friendId) == null)) {
             log.warn("You can't add this user to friends. Check the ids.");
             throw new NotFoundException(String.format("Users with id %d and id %d can't be added to friends.",
                     id, friendId));
@@ -116,7 +116,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void deleteFriend(int id, int friendId) {
-        if((getById(id) == null) || (getById(friendId) == null)) {
+        if ((getById(id) == null) || (getById(friendId) == null)) {
             log.warn("You can't remove this user from friends. Check the ids.");
             throw new NotFoundException(String.format("Users with id %d and id %d can't be added to friends.",
                     id, friendId));
@@ -129,7 +129,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getFriends(int id) {
-        if((getById(id) == null)) {
+        if ((getById(id) == null)) {
             log.warn("There is no user with id" + id);
             throw new NotFoundException(String.format("Users with id %d was not found.", id));
         }
@@ -141,7 +141,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getCommonFriends(int id, int otherId) {
-        if((getById(id) == null) || (getById(otherId) == null) ) {
+        if ((getById(id) == null) || (getById(otherId) == null)) {
             log.warn("You can't get common friends with this user. Check the ids.");
             throw new NotFoundException(String.format("Users with id %d and id %d don't have common friends. " +
                     "Check the ids.", id, otherId));
@@ -160,13 +160,13 @@ public class UserDbStorage implements UserStorage {
             user.setLogin(rs.getString("login"));
             user.setName(rs.getString("name"));
             user.setEmail(rs.getString("email"));
-            user.setBirthday( rs.getDate("birthday").toLocalDate());
+            user.setBirthday(rs.getDate("birthday").toLocalDate());
             return user;
         };
     }
 
     private void nameValidation(User user) {
-        if(user.getName() == null || user.getName().isBlank()) {
+        if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
     }

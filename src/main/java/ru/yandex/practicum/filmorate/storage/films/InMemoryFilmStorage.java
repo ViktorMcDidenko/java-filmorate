@@ -21,7 +21,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film addFilm(Film film) {
-        if(film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             log.warn("Release date is not valid.");
             throw new ValidationException("You cannot add pictures filmed before December 28, 1895.");
         }
@@ -33,11 +33,11 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film updateFilm(Film film) {
-        if(!films.containsKey(film.getId())) {
+        if (!films.containsKey(film.getId())) {
             log.warn("The film was not found. Update failed.");
             throw new NotFoundException("There is no film with id: " + film.getId());
         }
-        if(film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             log.warn("Release date is not valid.");
             throw new ValidationException("You cannot add pictures filmed before December 28, 1895.");
         }
@@ -48,7 +48,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public void deleteFilm(int id) {
-        if(!films.containsKey(id)) {
+        if (!films.containsKey(id)) {
             log.warn("The film was not found. Deletion failed.");
             throw new NotFoundException("There is no film with id: " + id);
         }
@@ -64,7 +64,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film getById(int id) {
-        if(!films.containsKey(id)) {
+        if (!films.containsKey(id)) {
             throw new NotFoundException(String.format("Film with id %d not found.", id));
         }
         return films.get(id);

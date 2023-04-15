@@ -32,7 +32,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film addFilm(Film film) {
-        if(film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             log.warn("Release date is not valid.");
             throw new ValidationException("You cannot add pictures filmed before December 28, 1895.");
         }
@@ -56,11 +56,11 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film updateFilm(Film film) {
-        if(getById(film.getId()) == null) {
+        if (getById(film.getId()) == null) {
             log.warn("The film was not found. Update failed.");
             throw new NotFoundException("There is no film with id: " + film.getId());
         }
-        if(film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             log.warn("Release date is not valid.");
             throw new ValidationException("You cannot add pictures filmed before December 28, 1895.");
         }
@@ -81,7 +81,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void deleteFilm(int id) {
-        if(getById(id) == null) {
+        if (getById(id) == null) {
             log.warn("The film was not found. Deletion failed.");
             throw new NotFoundException("There is no film with id: " + id);
         }
@@ -108,7 +108,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void addLike(int id, int userId) {
-        if(userStorage.getById(userId) == null) {
+        if (userStorage.getById(userId) == null) {
             log.warn("The user was not found.");
             throw new NotFoundException("There is no user with id: " + userId);
         }
@@ -118,7 +118,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void removeLike(int id, int userId) {
-        if(userStorage.getById(userId) == null) {
+        if (userStorage.getById(userId) == null) {
             log.warn("The user was not found.");
             throw new NotFoundException("There is no user with id: " + userId);
         }

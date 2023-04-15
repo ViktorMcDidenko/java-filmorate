@@ -29,7 +29,7 @@ public class User {
     }
 
     public void unfriend(int id) {
-        if(!friends.contains(id)) {
+        if (!friends.contains(id)) {
             throw new NotFoundException(String.format("User %s is not a friend of the user with id %d.",
                     getName(), id));
         }

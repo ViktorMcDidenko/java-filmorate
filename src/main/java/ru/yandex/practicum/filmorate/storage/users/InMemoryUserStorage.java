@@ -17,12 +17,12 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User addUser(User user) {
-        if(user.getLogin().contains(" ")) {
+        if (user.getLogin().contains(" ")) {
             log.warn("Login validation failed.");
             throw new ValidationException("Your login should not contain blanks.");
         }
         user.setId(userId++);
-        if(user.getName() == null || user.getName().isBlank()) {
+        if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
         users.put(user.getId(), user);
@@ -32,15 +32,15 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User updateUser(User user) {
-        if(!users.containsKey(user.getId())) {
+        if (!users.containsKey(user.getId())) {
             log.warn("The user was not found. Update failed.");
             throw new NotFoundException("There is no user with id: " + user.getId());
         }
-        if(user.getLogin().contains(" ")) {
+        if (user.getLogin().contains(" ")) {
             log.warn("Login validation failed.");
             throw new ValidationException("Your login should not contain blanks.");
         }
-        if(user.getName() == null || user.getName().isBlank()) {
+        if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
         users.put(user.getId(), user);
@@ -50,7 +50,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public void deleteUser(int id) {
-        if(!users.containsKey(id)) {
+        if (!users.containsKey(id)) {
             log.warn("The user was not found. Deletion failed.");
             throw new NotFoundException("There is no user with id: " + id);
         }
@@ -65,8 +65,8 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getById (int id) {
-        if(!users.containsKey(id)) {
+    public User getById(int id) {
+        if (!users.containsKey(id)) {
             throw new NotFoundException(String.format("User with id %d not found.", id));
         }
         return users.get(id);
@@ -74,7 +74,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public void addNewFriend(int id, int friendId) {
-        if(id == friendId) {
+        if (id == friendId) {
             throw new ValidationException("You can't add yourself to friends.");
         }
         User user1 = getById(id);
