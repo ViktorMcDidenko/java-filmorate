@@ -99,11 +99,11 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film getById(int id) {
         String sql = SQL_TO_FIND_FILMS + " WHERE f.id = ?";
-        List<Film> films = jdbcTemplate.query(sql, rowMapper(), id);
-        if (films.size() != 1) {
+        try {
+            return jdbcTemplate.queryForObject(sql, rowMapper(), id);
+        } catch (RuntimeException e) {
             throw new NotFoundException(String.format("Film with id %d not found.", id));
         }
-        return films.get(0);
     }
 
     @Override

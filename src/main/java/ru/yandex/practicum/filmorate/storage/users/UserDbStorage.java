@@ -87,11 +87,11 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User getById(int id) {
-        List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE id = ?", rowMapper(), id);
-        if (users.size() != 1) {
+        try {
+            return jdbcTemplate.queryForObject("SELECT * FROM users WHERE id = ?", rowMapper(), id);
+        } catch (RuntimeException e) {
             throw new NotFoundException(String.format("User with id %d not found.", id));
         }
-        return users.get(0);
     }
 
     @Override
@@ -141,7 +141,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getCommonFriends(int id, int otherId) {
-        if ((getById(id) == null) || (getById(otherId) == null)) {
+        if (getById(id) == null || getById(otherId) == null) {
             log.warn("You can't get common friends with this user. Check the ids.");
             throw new NotFoundException(String.format("Users with id %d and id %d don't have common friends. " +
                     "Check the ids.", id, otherId));

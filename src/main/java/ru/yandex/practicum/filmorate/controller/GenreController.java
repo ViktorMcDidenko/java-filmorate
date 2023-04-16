@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.storage.films.GenreDao;
+import ru.yandex.practicum.filmorate.service.GenreService;
 
 import java.util.List;
 
@@ -11,15 +11,15 @@ import java.util.List;
 @RequestMapping("/genres")
 @RequiredArgsConstructor
 public class GenreController {
-    private final GenreDao genreDao;
+    private final GenreService genreService;
 
     @GetMapping
     public List<Genre> findAll() {
-        return genreDao.getAll();
+        return genreService.getAll();
     }
 
     @GetMapping("/{id}")
     public Genre findById(@PathVariable int id) {
-        return genreDao.getById(id);
+        return genreService.getById(id);
     }
 }

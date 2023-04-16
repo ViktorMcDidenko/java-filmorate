@@ -14,12 +14,12 @@ public class MpaDao {
     private final JdbcTemplate jdbcTemplate;
 
     public Mpa getById(int id) {
-        List<Mpa> mpa = jdbcTemplate.query("SELECT * FROM mpa WHERE id = ?",
-                (rs, rowNum) -> new Mpa(rs.getInt("id"), rs.getString("name")), id);
-        if (mpa.size() != 1) {
+        try {
+            return jdbcTemplate.queryForObject("SELECT * FROM mpa WHERE id = ?",
+                    (rs, rowNum) -> new Mpa(rs.getInt("id"), rs.getString("name")), id);
+        } catch (RuntimeException e) {
             throw new NotFoundException(String.format("Film with id %d not found.", id));
         }
-        return mpa.get(0);
     }
 
     public List<Mpa> getAll() {
