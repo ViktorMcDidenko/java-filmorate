@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.users.InMemoryUserStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -22,15 +22,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 public class UserTest {
-    User user;
+    User user = new User();
     private Validator validator;
 
     @BeforeEach
     void beforeEach() {
-        user = new User("test@mail.ru",
-                "test-login",
-                LocalDate.of(1970, 12, 31),
-                "Антон");
+        user.setEmail("test@mail.ru");
+        user.setLogin("test-login");
+        user.setBirthday(LocalDate.of(1970, 12, 31));
+        user.setName("Антон");
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
     }
@@ -125,7 +125,7 @@ public class UserTest {
         UserController controller = new UserController(new UserService(new InMemoryUserStorage()));
         controller.create(user);
         int wrongId = 89;
-        user.setUserId(wrongId);
+        user.setId(wrongId);
 
         NotFoundException e = assertThrows(NotFoundException.class,
                 () -> controller.update(user));

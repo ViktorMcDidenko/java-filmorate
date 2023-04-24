@@ -1,36 +1,27 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.films.FilmStorage;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class FilmService {
     private final FilmStorage storage;
 
     public void addLike(int id, int userId) {
-        storage.getById(id).like(userId);
-        log.debug("User with id {} liked the film with id {}.", userId, id);
+        storage.addLike(id, userId);
     }
 
     public void removeLike(int id, int userId) {
-        storage.getById(id).unlike(userId);
-        log.debug("User with id {} unliked the film with id {}.", userId, id);
+        storage.removeLike(id, userId);
     }
 
     public List<Film> getMostLikedFilms(int count) {
-        log.debug("Getting {} most liked films.", count);
-        return storage.findAllFilms().stream()
-                .sorted((f1, f2) -> (f2.getLikes().size() - f1.getLikes().size()))
-                .limit(count)
-                .collect(Collectors.toList());
+        return storage.getMostLikedFilms(count);
     }
 
     public Film addFilm(Film film) {

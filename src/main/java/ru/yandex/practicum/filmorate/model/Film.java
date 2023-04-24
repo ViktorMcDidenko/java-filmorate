@@ -12,31 +12,26 @@ import java.util.Set;
 
 @Data
 public class Film {
-    private int filmId;
+    private int id;
     @NotBlank
-    private String title;
+    private String name;
     @Size(max = 200)
     private String description;
     private LocalDate releaseDate;
     @Positive
-    private long duration;
-    Set<Integer> likes = new HashSet<>();
-
-    public Film(String title, String description, LocalDate releaseDate, int duration) {
-        this.title = title;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-    }
+    private int duration;
+    private Mpa mpa;
+    private Set<Genre> genres = new HashSet<>();
+    private Set<Integer> likes = new HashSet<>();
 
     public void like(int id) {
         likes.add(id);
     }
 
     public void unlike(int id) {
-        if(!likes.contains(id)) {
+        if (!likes.contains(id)) {
             throw new NotFoundException(String.format("User with id %d hasn't liked the film %s yet.",
-                    id, getTitle()));
+                    id, getName()));
         }
         likes.remove(id);
     }
