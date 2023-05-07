@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate;
+﻿package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,7 +71,7 @@ public class FilmTest {
     @Test
     void checkTooOldFilm() {
         FilmController controller = new FilmController(service);
-        film.setReleaseDate(LocalDate.of(1895, 12, 27));
+        film.setReleaseDate(LocalDate.of(1895, 12, 26));
 
         ValidationException e = assertThrows(ValidationException.class,
                 () -> controller.create(film));
